@@ -53,10 +53,12 @@ def readJudgment(judgefile,topic):
         info=line.split()
         assert len(info)==4
         (topicid,dummy,docno,res)=info
+       # print("topicid,dummy,docno,res topic", topicid,dummy,docno,res, "topic ", topic)
         # judge=judgement.setdefault(topicid,{})
         # assert docno not in judge
         if topicid == topic:
             judge.setdefault(docno,res)
+            #print("topicid,dummy,docno,res topic", topicid,dummy,docno,res, "topic ", topic)
 
 def doJudge(docno, topicid):
     
@@ -93,6 +95,7 @@ if __name__=="__main__":
         res=doJudge(docno, topicid)
         if int(res)>0:
             #out.write("%s %s\n"%(docno,res))
+          
             out.write("%s\n"%(docno))
             record.write("%s 1\n"%(docno))
         else:

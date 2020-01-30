@@ -13,7 +13,7 @@ SOFIA="/home/jean/Documents/tar-toolkit-core-copy/sofia-ml-read-only/sofia-ml"
 '
 for CORP in "${CORPLIST[@]}"; do
 
-    pushd Corpus
+    pushd Corpus # pushd <dir> é semelhante à cd <dir>
 
     ./dofast4 "$CORP"
 
@@ -21,17 +21,35 @@ for CORP in "${CORPLIST[@]}"; do
 
     cp "$CORP".svm.fil ../"$CORP".svm.fil
 
-    popd
+    popd # popd é semelhante ao cd ..
 
+    : '
+        IFS significa Internal Field Separator (separador interno de campos) e
+            é utilizado pelo bash para dizer como fazer a separação de palavras,
+            ou seja, como identificar palavras (o valor padrã é um espaço em branco " ").
+
+        read <line> permite ler um arquivo linha por linha. -r diz ao bash para não
+            permitir que barra invevrtida escape caracteres. IFS="" faz com que
+            espaços em brancos no começo e no fim não sejam removidos durante a leitura.
+
+        Sintaxe para leitura de arquivos linha por linha:
+            while IFS="" rean -r line; do
+                <comandos que irão tratar $line>
+            done < input_file
+    '
     while IFS='' read -r line || [[ -n $line ]]; do
+
+        : '
+        read -ra TEXT atribui o conteúdo de $line a um array chamado TEXT. Neste caso,
+            os elementos da linha são separados em cada ":" e cada um vira um elemento do array.
+        '
         IFS=':' read -ra TEXT <<< "$line"
 
         TOPIC="${TEXT[0]}"
         QUERY="${TEXT[1]}"
+
         echo "$TOPIC"
         echo "$QUERY"
-
-
 
         rm -rf result/"$PURPOSE"/"$CORP"/"$TOPIC"/
         mkdir -p result/"$PURPOSE"/"$CORP"/
@@ -41,25 +59,68 @@ for CORP in "${CORPLIST[@]}"; do
         mkdir $TOPIC
 
 
+        : '
+            wc -l mostra o número de linhas de um arquivo. Assim, "N" armazena
+                o número de linhas do arquivo "$CORP.svm.fil".
+        '
         echo `wc -l < "$CORP".svm.fil` > N
+
         pushd $TOPIC
 
         echo "$QUERY" > "$TOPIC".seed.doc
 
+        : '
+            cut é utilizado para selecionar (cortar) partes de um arquivo.
+
+                -f permite selecionar com base em um campo (neste caso
+                o primeiro: -f1 ou -f 1).
+
+                -d especifica o delimitador, utilizado para separar os campos.
+
+                cut -d " " -f 1 forma campos dividindo cada linha nos espaços em
+                branco e seleciona a primeira coluna.
+
+            sed é um editor (não interativo) que permite, dentre outras coisas,
+                realizar substituições em uma entrada de texto.
+
+                -e <script> diz para executar <script>. Neste caso não é necessário
+                pois há apenas um script/comando.
+
+                em "s/.*/& &/", s informa que será executada uma substituição no texto
+                de entrada. .* é o pattern que deve ser substituido pelo pattern & &.
+                    .* representa qualquer caracter exceto quebra de linha, ou seja,
+                    permite selecionar uma linha inteira.
+
+                    & representa toda a string encontrada.
+
+                então sed "s/.*/& &/" duplica o conteúdo de cada linha
+                de um arquivo.
+        '
 
         cut -d' ' -f1 ../$CORP.svm.fil | sed -e 's/.*/& &/' > docfil
         cut -d' ' -f1 docfil | cat -n > docfils
 
 
         touch rel.$TOPIC.fil
-
-
         touch prel.$TOPIC
+
         rm -rf prevalence.rate
         touch prevalence.rate
+
         rm -rf rel.rate
         touch rel.rate
 
+        ########################################################################
+        ########################################################################
+        ########################################################################
+        ########################################################################
+        ########################################################################
+        ########################################################################
+        ########################################################################
+        ########################################################################
+        ########################################################################
+        ########################################################################
+        # STOPED HERE
 
         rm -f new[0-9][0-9].$TOPIC tail[0-9][0-9].$TOPIC self*.$TOPIC gold*.$TOPIC
         touch new00.$TOPIC

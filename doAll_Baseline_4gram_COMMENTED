@@ -110,22 +110,14 @@ for CORP in "${CORPLIST[@]}"; do
         rm -rf rel.rate
         touch rel.rate
 
-        ########################################################################
-        ########################################################################
-        ########################################################################
-        ########################################################################
-        ########################################################################
-        ########################################################################
-        ########################################################################
-        ########################################################################
-        ########################################################################
-        ########################################################################
-        # STOPED HERE
-
         rm -f new[0-9][0-9].$TOPIC tail[0-9][0-9].$TOPIC self*.$TOPIC gold*.$TOPIC
         touch new00.$TOPIC
 
 
+        : '
+            NDOCS armazena a quantidade de linhas dentro de docfils, que corresponde
+                ao número de documentos.
+        '
         NDOCS=`cat docfils | wc -l`
         NDUN=0
         L=1
@@ -139,6 +131,10 @@ for CORP in "${CORPLIST[@]}"; do
         ./dofeaturesseed4 $TOPIC.seed.doc $TOPIC $CORP
 
         pushd $TOPIC
+
+        : '
+            sed -e "s/[^ ]*/0/ <file> substitui a primeira coluna de <file> para 0"
+        '
 
         sed -e 's/[^ ]*/0/' ../$CORP.svm.fil | ../dosplit
         sed -e 's/[^ ]*/1/' svm.$TOPIC.seed.doc.fil > $TOPIC.synthetic.seed
@@ -160,15 +156,43 @@ for CORP in "${CORPLIST[@]}"; do
 
                     sort -k2 x | join -12 - ../$CORP.svm.fil | cut -d' ' -f2- | sort -n >> trainset
 
+                    : '
+                        grep -E <pattern> <file> busca <pattern> dentro de <file> e mostra
+                            as linhas que possuem um padrão;
+                            * grep -E "^1\b" trainset retorna todas as linhas que começam com
+                                1 (e que tenham um espaço após o 1);
+                    '
+
                     # Calculate relevant documents prevalence rate in the traning set
 
-                    RELTRAINDOC=`grep -E "^1\b" trainset | wc -l`
-                    NOTRELTRAINDOC=`grep -E "^-1\b" trainset | wc -l`
-                    PREVALENCERATE=`echo "scale=4; $RELTRAINDOC / ($RELTRAINDOC + $NOTRELTRAINDOC)" | bc`
+                    RELTRAINDOC=`grep -E "^1\b" trainset | wc -l` # Número de documentos relevantes em trainset
+
+                    NOTRELTRAINDOC=`grep -E "^-1\b" trainset | wc -l` # Número de docs não relevantes em trainset
+
+                    : '
+                        bc é utilizado para realizar cálculos matemáticos
+                    '
+
+                    PREVALENCERATE=`echo "scale=4; $RELTRAINDOC / ($RELTRAINDOC + $NOTRELTRAINDOC)" | bc` # taxa de documentos
+                                                                                                          # relevantes
+
                     echo $RELTRAINDOC $NOTRELTRAINDOC $PREVALENCERATE >> prevalence.rate
 
 
+                    : '
+                        Parametros do sofia-ml:
+                            * --learner_type logreg-pegasos: Utiliza regressão logística com atualizações
+                                do Pegasos. Pegasos SVM é um algoritmo de aprendizagem.
+                            * --loop_type roc: --loop_type controla como os exemplos são selecionados; 
+                                roc
+                    '
+
                     $SOFIA --learner_type logreg-pegasos --loop_type roc --lambda $LAMBDA --iterations 200000 --training_file trainset --dimensionality 9300000 --model_out svm_model
+
+                    : '
+                        $? armazena o estatus de saída do comando executado mais recentemente:
+                            0 se o comando executou normalmente, outro valor caso contrário.
+                    '
 
                     RES=$?
                     echo $RES

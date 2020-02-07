@@ -33,11 +33,11 @@ for CORP in "${CORPLIST[@]}"; do
             espaços em brancos no começo e no fim não sejam removidos durante a leitura.
 
         Sintaxe para leitura de arquivos linha por linha:
-            while IFS="" rean -r line; do
+            while IFS="" read -r line; do
                 <comandos que irão tratar $line>
             done < input_file
     '
-    while IFS='' read -r line || [[ -n $line ]]; do
+    while IFS='' read -r line || [[ -n $line ]]; do # arquivo de entrada: judgement/$CORP.topic.stemming.txt
 
         : '
         read -ra TEXT atribui o conteúdo de $line a um array chamado TEXT. Neste caso,
@@ -124,6 +124,10 @@ for CORP in "${CORPLIST[@]}"; do
         R=100
         export LAMBDA=0.0001
 
+        : '
+            $TOPIC.seed.doc armazena a query para $TOPIC
+        '
+
         cp $TOPIC.seed.doc ../$TOPIC.seed.doc
 
         popd
@@ -182,9 +186,15 @@ for CORP in "${CORPLIST[@]}"; do
                     : '
                         Parametros do sofia-ml:
                             * --learner_type logreg-pegasos: Utiliza regressão logística com atualizações
-                                do Pegasos. Pegasos SVM é um algoritmo de aprendizagem.
+                                do Pegasos. Pegasos SVM é um algoritmo de aprendizagem;
                             * --loop_type roc: --loop_type controla como os exemplos são selecionados; 
-                                roc
+                            * --lambda: parametro de regularização do Pegasos;
+                            * --iterations: número de passos do gradiente estocástico (stochastic gradient);
+                            * --dimensionality: dimensão do dataset - índice do maior feature de treino + 1;
+
+                            * --test_file: especifica o arquivo a ser usado para teste;
+                            * --model_in: lê o modelo do arquivo especificado (o modelo será utilizado para treino/teste);
+                            * --results_file: especifica o arquivo onde os resultados de teste (quando --test_file for especificado) serão escritos;
                     '
 
                     $SOFIA --learner_type logreg-pegasos --loop_type roc --lambda $LAMBDA --iterations 200000 --training_file trainset --dimensionality 9300000 --model_out svm_model
@@ -197,7 +207,8 @@ for CORP in "${CORPLIST[@]}"; do
                     RES=$?
                     echo $RES
 
-                    if [ "$RES" -eq "0" ] ; then
+                    # se o modelo foi treinado com sucesso, ele será testado
+                    if [ "$RES" -eq "0" ] ; then 
                         for z in svm.test.* ; do
                             $SOFIA --test_file $z --dimensionality 9300000 --model_in svm_model --results_file pout.$z
                         done
@@ -207,24 +218,48 @@ for CORP in "${CORPLIST[@]}"; do
                         cut -f2 docfils | sort -R | cat -n | sort -k2 | sed -e 's/ */-/' > pout.svm.test.1
                     fi
 
+                    : '
+                        join -o permite espicificar a ordem dos campos na saída
+                          - join -o2.2,1.2 está especificando que a saída deverá conter o 
+                            segundo campo do segundo arquivo (2.2) seguido do segundo campo do 
+                            primeiro arquivo (1.2)
+
+                        join -t permite especificar o separador
+                    '
+
                     cut -f1 pout.svm.test.* | ../fixnum | cat -n | join -o2.2,1.2 -t$'\t' - docfils > inlr.out
                     sort seed | join -v2 - inlr.out | sort -rn -k2 | cut -d' ' -f1 > new$N.$TOPIC
                     cat new[0-9][0-9].$TOPIC > x
 
                     if [ "$N" != "99" ] ; then
+                        # adiciona as primeiras $L linhas de new$N.$TOPIC para y e depois denovo para new$N.$TOPIC
                         head -$L new$N.$TOPIC > y ; mv y new$N.$TOPIC
                     fi
 
+                    : '
+                        x armazena new($N - 1).$TOPIC
+                    '
+
+                    # judgefile é o arquivo que diz quais docs são os positivos
                     python ../doJudgementMain.py --topic=$TOPIC --judgefile=../judgement/qrels.$JUDGECLASS.list --input=new$N.$TOPIC --output=rel.$TOPIC.Judged.doc.list --record=$TOPIC.record.list
+
+                    # o arquivo rel.$TOPIC.Judged.doc.list contém os docs relevantes
 
                     cat rel.$TOPIC.Judged.doc.list >> rel.$TOPIC.fil
                     cat rel.$TOPIC.Judged.doc.list > rel.$TOPIC.$N.Judged.doc.list
 
+                    : '
+                        rel.$TOPIC.fil armazena todos os resultados da execução de doJudgementMain.py
+                        enquanto rel.$TOPIC.$N.Judged.doc.list armazena o resultado da última execução
+                    '
+
                     RELFINDDOC=`wc -l < rel.$TOPIC.Judged.doc.list`
+                    # scale=4 diz ao bc para usar 4 casas decimais
                     RELRATE=`echo "scale=4; $RELFINDDOC / $L" | bc`
-                    CURRENTREL=`wc -l < rel.$TOPIC.fil`
+                    CURRENTREL=`wc -l < rel.$TOPIC.fil` # número de relevantes
                     echo $RELFINDDOC $L $RELRATE $CURRENTREL >> rel.rate
 
+                    # adiciona ' 1' ao final de cada linha de rel.$TOPIC.fil e manda o resultado para prel.$TOPIC
                     sort rel.$TOPIC.fil | sed -e 's/$/ 1/' > prel.$TOPIC
 
                     cut -d' ' -f1 prel.$TOPIC > rel.$TOPIC.fil

@@ -12,7 +12,15 @@ CORP=$3
             busca bem sucedida (encontrou);
 '
 
+: '
+    $1 contém o arquivo com a query: $TOPIC.seed.doc
+'
+
 N=`find $1 -type f | wc -l`
+
+: '
+    sort -k3 está sendo aplicado na saída de ./dosteminline
+'
 
 find $1 -type f -exec ./dosteminline4 {} \; | sort -k3 > $TOPIC/concordance.$1
 

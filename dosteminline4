@@ -1,5 +1,8 @@
 #!/bin/bash
 
+source ./handle_errors
+source ./colors
+
 X=`pwd`/$1 # caminho do arquivo contendo a query
 F=`pwd`/Corpus/dofast4
 
@@ -7,6 +10,7 @@ F=`pwd`/Corpus/dofast4
     $$ armazena o pid da shell atual, assim xxx$$
     cria um diretório com "nome único".
 '
+
 try "Creating /tmp/xxx$$ and deleting /tmp/dotf*line..." 12 13
 (
     mkdir /tmp/xxx$$
@@ -17,7 +21,6 @@ try "Creating /tmp/xxx$$ and deleting /tmp/dotf*line..." 12 13
 catch || {
     exit_on_error
 }
-
 
 : '
     ln -s <src> <dest> cria um link de <src> em <dest>.
@@ -57,7 +60,7 @@ catch || {
 
 echo -e "${GREEN}Done.${END}"
 
-try "Running $F on thing..." 62
+try "Running ./dofast4 ($F) on thing..." 62
 (
     $F thing
 
@@ -67,6 +70,6 @@ catch || {
     exit_on_error
 }
 
-echo -e "${GREEN}Done.${END}"
+echo -e "${GREEN}Finished ./dofast4${END}"
 
 cat thing.concordance

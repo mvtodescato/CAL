@@ -45,7 +45,11 @@ def cmdProcess(argv):
 
 
 def readJudgment(judgefile,topic):
-   
+    """
+    Adiciona os documentos referentes ao tópico atual em um dicionário.
+    A chave do dicionário é o número do documento e o valor é 1 se o documento
+    é relevante e 0 caso contrário.
+    """
     for line in open(judgefile):
         line=line.strip()
         if len(line)==0:
@@ -61,7 +65,11 @@ def readJudgment(judgefile,topic):
             #print("topicid,dummy,docno,res topic", topicid,dummy,docno,res, "topic ", topic)
 
 def doJudge(docno, topicid):
-    
+
+    """
+    Retorna se o documento atual é positivo (1) ou negativo (0).
+    Retorna -1 se o documento não foi encontrado.
+    """
     if docno in judge:
         return judge[docno]
     else:
@@ -73,9 +81,9 @@ if __name__=="__main__":
     if len(sys.argv)<=argvNum:
         error()
     myArgs=cmdProcess(sys.argv[1:])
-    
+
     judge={}
-    
+
     topicid=myArgs['topic']
     inf=myArgs["input"]
     outf=myArgs['output']
@@ -95,7 +103,7 @@ if __name__=="__main__":
         res=doJudge(docno, topicid)
         if int(res)>0:
             #out.write("%s %s\n"%(docno,res))
-          
+
             out.write("%s\n"%(docno))
             record.write("%s 1\n"%(docno))
         else:

@@ -42,14 +42,9 @@ cat -n $CORP.df | join -13 -23 - $TOPIC/concordance.$1 | sort -k4,4 -k2,2n > $TO
 N=`cat N`
 echo N $N
 
-try "Executing ./dotfidfinline..." 47
-(
-    ./dotfidfinline $N < $TOPIC/tfdf.$1.sort > $TOPIC/svm.$1.fil
+echo -e "${BLUE}Executing ./dotfidfinline...${END}"
 
-) 2> $STD_ERROR_OUT
+# código de saída 10 mesmo quando funciona
+./dotfidfinline $N < $TOPIC/tfdf.$1.sort > $TOPIC/svm.$1.fil
 
-catch || {
-    exit_on_error
-}
-
-echo -e "${GREEN}Done.${END}"
+echo -e "${GREEN}Finished ./dotfidfinline.${END}"

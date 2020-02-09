@@ -336,6 +336,8 @@ for CORP in "${CORPLIST[@]}"; do
                             0 se o comando executou normalmente, outro valor caso contrário.
                     '
 
+                    echo $RES
+
                     # se o modelo foi treinado com sucesso, ele será testado
                     if [[ "$RES" -eq "0" ]] ; then
                         for z in svm.test.* ; do
@@ -356,8 +358,19 @@ for CORP in "${CORPLIST[@]}"; do
                         done
 
                     else
-                        rm -f pout.svm.test.*
-                        cut -f2 docfils | sort -R | cat -n | sort -k2 | sed -e 's/ */-/' > pout.svm.test.1
+                        ######
+                        try "Preparing pout.svm.test.1..." 364 365
+                        (
+                            rm -f pout.svm.test.*
+                            cut -f2 docfils | sort -R | cat -n | sort -k2 | sed -e 's/ */-/' > pout.svm.test.1
+
+                        ) 2> $STD_ERROR_OUT
+
+                        catch || {
+                            exit_on_error
+                        }
+
+                        echo -e "${GREEN}Done.${END}"
                     fi
 
                     : '
@@ -369,14 +382,25 @@ for CORP in "${CORPLIST[@]}"; do
                         join -t permite especificar o separador
                     '
 
-                    cut -f1 pout.svm.test.* | ../fixnum | cat -n | join -o2.2,1.2 -t$'\t' - docfils > inlr.out
-                    sort seed | join -v2 - inlr.out | sort -rn -k2 | cut -d' ' -f1 > new$N.$TOPIC
-                    cat new[0-9][0-9].$TOPIC > x
+                    ######
+                    try "Preparing new$N.$TOPIC..." 388 395
+                    (
+                        cut -f1 pout.svm.test.* | ../fixnum | cat -n | join -o2.2,1.2 -t$'\t' - docfils > inlr.out
+                        sort seed | join -v2 - inlr.out | sort -rn -k2 | cut -d' ' -f1 > new$N.$TOPIC
+                        cat new[0-9][0-9].$TOPIC > x
 
-                    if [ "$N" != "99" ] ; then
-                        # adiciona as primeiras $L linhas de new$N.$TOPIC para y e depois denovo para new$N.$TOPIC
-                        head -$L new$N.$TOPIC > y ; mv y new$N.$TOPIC
-                    fi
+                        if [ "$N" != "99" ] ; then
+                            # adiciona as primeiras $L linhas de new$N.$TOPIC para y e depois denovo para new$N.$TOPIC
+                            head -$L new$N.$TOPIC > y ; mv y new$N.$TOPIC
+                        fi
+
+                    ) 2> $STD_ERROR_OUT
+
+                    catch || {
+                        exit_on_error
+                    }
+
+                    echo -e "${GREEN}Done.${END}"
 
                     : '
                         x armazena new($N - 1).$TOPIC

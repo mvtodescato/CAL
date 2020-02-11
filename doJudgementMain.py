@@ -110,4 +110,3 @@ if __name__=="__main__":
             record.write("%s 0\n"%(docno))
     out.close()
     record.close()
-

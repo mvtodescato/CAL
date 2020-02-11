@@ -213,7 +213,7 @@ for CORP in "${CORPLIST[@]}"; do
         '
 
         ######
-        try "Preparing ../$CORP.svm.fil (runs ../dosplit) and $TOPIC.synthetic.seed..." 217 218
+        try "Preparing ../$CORP.svm.fil (runs ../dosplit) and $TOPIC.synthetic.seed..." 218 219
         (
             sed -e 's/[^ ]*/0/' ../$CORP.svm.fil | ../dosplit
             sed -e 's/[^ ]*/1/' svm.$TOPIC.seed.doc.fil > $TOPIC.synthetic.seed
@@ -329,7 +329,7 @@ for CORP in "${CORPLIST[@]}"; do
                     #     exit_on_error
                     # }
 
-                    echo -e "${GREEN}Finished SOFIA-ML.${END}"
+                    # echo -e "${GREEN}Finished SOFIA-ML.${END}"
 
                     : '
                         $? armazena o estatus de saída do comando executado mais recentemente:

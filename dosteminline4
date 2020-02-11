@@ -40,8 +40,8 @@ catch || {
 echo -e "${GREEN}Done.${END}"
 
 ######
-try "Creating 'thing' directory and compressing it..." 42 45
-(
+# try "Creating 'thing' directory and compressing it..." 42 45
+# (
     cd /tmp/xxx$$
 
     mkdir thing
@@ -52,23 +52,32 @@ try "Creating 'thing' directory and compressing it..." 42 45
     '
     tar zcf thing.tgz thing
 
-) 2> $STD_ERROR_OUT
+# ) 2> $STD_ERROR_OUT
+#
+# catch || {
+#     exit_on_error
+# }
 
-catch || {
-    exit_on_error
-}
+
+# if [[ ! -d /tmp/xxxx$$/thing ]]; then
+#     throw $DIRECTORY_NOT_EXISTS_EXCEPTION "Directory /tmp/xxxx$$/thing is missing."
+#
+# elif [[ ! -f /tmp/xxxx$$/thing.tgz ]]; then
+#     throw $FILE_NOT_EXISTS_EXCEPTION "File /tmp/xxxx$$/thing.tgz is missing."
+#
+# fi
 
 echo -e "${GREEN}Done.${END}"
 
-try "Running ./dofast4 ($F) on thing..." 62
-(
+# try "Running ./dofast4 ($F) on thing..." 62
+# (
     $F thing
 
-) 2> $STD_ERROR_OUT
-
-catch || {
-    exit_on_error
-}
+# ) 2> $STD_ERROR_OUT
+#
+# catch || {
+#     exit_on_error
+# }
 
 echo -e "${GREEN}Finished ./dofast4${END}"
 

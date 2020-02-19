@@ -1,0 +1,57 @@
+#!/bin/bash
+
+source ./handle_errors
+source ./colors
+
+
+# Controls how many time results will be taken
+SAMPLES=10
+
+CORPLIST=("toyDataset")
+RESULT_DIR="result/baseline"
+
+ALL_RESULTS_HELPER="all_results/runs.describe.txt"
+
+# creates directory to store samples results
+rm -rf all_results
+mkdir all_results
+
+touch $ALL_RESULTS_HELPER
+
+for CORP in "${CORPLIST[@]}"; do
+    
+    echo -e "${YELLOW}CORP: $CORP. ${END}"
+
+    #mkdir all_results/${CORP}
+
+    for i in $(seq -f "%02g" ${SAMPLES}); do
+
+        echo -e "${MAGENTA}Running sample ${i}.${END}"
+
+        rm -rf all_results/result-${i}
+        mkdir all_results/result-${i}
+
+        # skips data extraction after first time executed (saves time)
+        
+        #if [[ $i > 1 ]]; then
+        #    bash doAll_Baseline_4gram 1
+        #else
+            bash doAll_Baseline_4gram
+        #fi
+        
+
+        # put result in another location
+        for topic in `ls ${RESULT_DIR}/${CORP}/`; do
+            cp ${RESULT_DIR}/${CORP}/${topic}/rel.rate all_results/result-${i}/rel.${topic}.rate
+
+            # topic execution_number result file
+            echo "${topic} ${i} all_results/result-${i}/rel.${topic}.rate" >> $ALL_RESULTS_HELPER
+        done
+
+    done
+done
+
+echo -e "${MAGENTA}Finished taking results...\nComputing mean and standard deviation of samples.${END}"
+
+python buildResults.py $ALL_RESULTS_HELPER
+

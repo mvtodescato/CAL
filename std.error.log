@@ -1,0 +1,8 @@
+/home/jean/Researsh/MedicalDocumentRecall/CAL/Corpus/dofast4: line 3: ../handle_errors: No such file or directory
+/home/jean/Researsh/MedicalDocumentRecall/CAL/Corpus/dofast4: line 4: ../colors: No such file or directory
+ERR Found directory 'thing/'
+ERR Found file 'thing/doc' (14 bytes)
+ERR Found TAR end
+/home/jean/Researsh/MedicalDocumentRecall/CAL/Corpus/dofast4: line 27: try: command not found
+/home/jean/Researsh/MedicalDocumentRecall/CAL/Corpus/dofast4: line 40: catch: command not found
+/home/jean/Researsh/MedicalDocumentRecall/CAL/Corpus/dofast4: line 41: exit_on_error: command not found

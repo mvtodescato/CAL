@@ -9,8 +9,7 @@ JUDGECLASS="toyDataset"
 CORPLIST=("toyDataset")
 SOFIA="/home/jean/Documents/tar-toolkit-core-copy/sofia-ml-read-only/sofia-ml"
 
-# Color codes
-
+SKIP_DATA_EXTRACTION=$1
 
 : '
     Percorre cada item listado em
@@ -18,19 +17,20 @@ SOFIA="/home/jean/Documents/tar-toolkit-core-copy/sofia-ml-read-only/sofia-ml"
 '
 for CORP in "${CORPLIST[@]}"; do
 
-    pushd Corpus # pushd <dir> é semelhante à cd <dir>
+    if [[ ! $SKIP_DATA_EXTRACTION  ]]; then
+        pushd Corpus # pushd <dir> é semelhante à cd <dir>
 
-    echo -e "${WHTIE}Preparando dataset...${END}"
+        echo -e "${WHTIE}Preparando dataset...${END}"
 
-    # código de saída 10 mesmo quando funciona
-    ./dofast4 "$CORP"
+        # código de saída 10 mesmo quando funciona
+        ./dofast4 "$CORP"
 
-    cp "$CORP".df ../"$CORP".df
+        cp "$CORP".df ../"$CORP".df
 
-    cp "$CORP".svm.fil ../"$CORP".svm.fil
+        cp "$CORP".svm.fil ../"$CORP".svm.fil
 
-    popd # popd é semelhante ao cd ..
-
+        popd # popd é semelhante ao cd ..
+    fi
     : '
         IFS significa Internal Field Separator (separador interno de campos) e
             é utilizado pelo bash para dizer como fazer a separação de palavras,

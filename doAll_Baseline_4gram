@@ -9,7 +9,31 @@ JUDGECLASS="toyDataset"
 CORPLIST=("toyDataset")
 SOFIA="/home/jean/Documents/tar-toolkit-core-copy/sofia-ml-read-only/sofia-ml"
 
-SKIP_DATA_EXTRACTION=$1
+SKIP_DATA_EXTRACTION=$1; shift
+TOPICS_CONSIDERED=("$@");
+
+contains() {
+    : '
+        Utility function that returns true if a given
+        value is within the given array and false otherwise.
+
+        $1 -> value to check
+        $2... -> array
+    '
+
+    value=$1; shift
+    array=("$@")
+
+    for v in "${array[@]}"; do
+        if [[ $v == $value ]]; then
+            true
+            return
+        fi
+    done
+
+    false
+    return
+}
 
 : '
     Percorre cada item listado em
@@ -17,20 +41,19 @@ SKIP_DATA_EXTRACTION=$1
 '
 for CORP in "${CORPLIST[@]}"; do
 
-    if [[ ! $SKIP_DATA_EXTRACTION  ]]; then
-        pushd Corpus # pushd <dir> é semelhante à cd <dir>
+    pushd Corpus # pushd <dir> é semelhante à cd <dir>
 
-        echo -e "${WHTIE}Preparando dataset...${END}"
+    echo -e "${WHTIE}Preparando dataset...${END}"
 
-        # código de saída 10 mesmo quando funciona
+    if [[ $SKIP_DATA_EXTRACTION == "false" ]]; then
         ./dofast4 "$CORP"
-
-        cp "$CORP".df ../"$CORP".df
-
-        cp "$CORP".svm.fil ../"$CORP".svm.fil
-
-        popd # popd é semelhante ao cd ..
     fi
+
+    cp "$CORP".df ../"$CORP".df
+
+    cp "$CORP".svm.fil ../"$CORP".svm.fil
+
+    popd # popd é semelhante ao cd ..
     : '
         IFS significa Internal Field Separator (separador interno de campos) e
             é utilizado pelo bash para dizer como fazer a separação de palavras,
@@ -53,8 +76,13 @@ for CORP in "${CORPLIST[@]}"; do
         '
         IFS=':' read -ra TEXT <<< "$line"
 
-
         TOPIC="${TEXT[0]}"
+
+        if ! contains $TOPIC "${TOPICS_CONSIDERED[@]}"; then
+            echo -e "${YELLOW}Skipping topic '$TOPIC'.${END}"
+            continue
+        fi
+
         QUERY="${TEXT[1]}"
 
         if [[ -z $TOPIC ]]; then
@@ -185,6 +213,8 @@ for CORP in "${CORPLIST[@]}"; do
         : '
             NDOCS armazena a quantidade de linhas dentro de docfils, que corresponde
                 ao número de documentos.
+            NDUN é o número de documentos já treinados.
+            L é o número de documentos que serão treinados na iteração.
         '
         NDOCS=`cat docfils | wc -l`
         NDUN=0

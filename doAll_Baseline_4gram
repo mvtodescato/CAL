@@ -4,9 +4,9 @@ source ./handle_errors
 source ./colors
 
 PURPOSE=baseline
-JUDGECLASS="toyDataset"
+JUDGECLASS="oldreut"
 
-CORPLIST=("toyDataset")
+CORPLIST=("oldreut")
 SOFIA="/home/jean/Documents/tar-toolkit-core-copy/sofia-ml-read-only/sofia-ml"
 
 SKIP_DATA_EXTRACTION=$1; shift
@@ -45,9 +45,9 @@ for CORP in "${CORPLIST[@]}"; do
 
     echo -e "${WHTIE}Preparando dataset...${END}"
 
-    if [[ $SKIP_DATA_EXTRACTION == "false" ]]; then
-        ./dofast4 "$CORP"
-    fi
+    #if [[ $SKIP_DATA_EXTRACTION == "false" ]]; then
+        #./dofast4 "$CORP"
+    #fi
 
     cp "$CORP".df ../"$CORP".df
 

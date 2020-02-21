@@ -5,9 +5,6 @@ import statistics
 
 ALL_RESULT_HELPER = sys.argv[1]
 
-def sum_rows(row_val, prev_row_val):
-    return float(row_val) + prev_row_val
-
 if not os.path.exists("results"):
     os.mkdir("results")
 
@@ -32,6 +29,9 @@ with open(ALL_RESULT_HELPER, "r") as runs_describer:
             all_so_far = 0
             total_positives = int(rel_file.readlines()[-1].split()[3])
 
+            # This must be tested. It changes the results??
+            if total_positives == 0:
+                total_positives = 1
 
             rel_file.seek(0)
 
@@ -82,6 +82,7 @@ for topic_dir in os.listdir(results_path):
                         positives.append([])
                         recall.append([])
 
+                    print(row)
                     positives[curr_idx].append(float(row[0]))
                     recall[curr_idx].append(float(row[2]))
 
@@ -89,9 +90,9 @@ for topic_dir in os.listdir(results_path):
 
             result_count += 1
 
+
         #
-        #print(len(positives))
-        for i in range(result_count - 1):
+        for i in range(len(positives)):
             rel_gen_writer.writerow([
                 "{:.5f}".format(statistics.mean(positives[i])),
                 "{:.5f}".format(statistics.stdev(positives[i])),

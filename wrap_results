@@ -4,16 +4,16 @@ source ./handle_errors
 source ./colors
 
 # Controls how many time results will be taken
-SAMPLES=1
+SAMPLES=3
 
-CORPLIST=("toyDataset")
+CORPLIST=("oldreut")
 RESULT_DIR="result/baseline"
 
 ALL_RESULTS_HELPER="all_results/runs.describe.txt"
 
 # Topics to be used in doAll_Baseline_4gram.
 # Topics omited are ignored.
-TOPICS_CONSIDERED=("tr0" "tr1" "tr2" "tr5")
+TOPICS_CONSIDERED=("tr4" "tr5")
 
 # creates directory to store samples results
 rm -rf all_results

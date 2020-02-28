@@ -37,7 +37,7 @@ catch || {
     exit_on_error
 }
 
-echo -e "${GREEN}Done.${END}"
+echo -e "${GREEN}Done.${END}" > /dev/tty
 
 ######
 # try "Creating 'thing' directory and compressing it..." 42 45
@@ -67,7 +67,7 @@ echo -e "${GREEN}Done.${END}"
 #
 # fi
 
-echo -e "${GREEN}Done.${END}"
+echo -e "${GREEN}Done.${END}" > /dev/tty
 
 # try "Running ./dofast4 ($F) on thing..." 62
 # (
@@ -79,6 +79,6 @@ echo -e "${GREEN}Done.${END}"
 #     exit_on_error
 # }
 
-echo -e "${GREEN}Finished ./dofast4${END}"
+echo -e "${GREEN}Finished ./dofast4${END}" > /dev/tty
 
 cat thing.concordance

@@ -12,7 +12,7 @@ export EMPTY_VARIABLE_EXCEPTION=12
 try() {
     set +e
     if (( $# > 0 )); then
-        echo -e "${BLUE}${1}${END}"
+        echo -e "${BLUE}${1}${END}" > /dev/tty
 
         if (( $# > 1 )); then
             CODE_START=$2
@@ -53,7 +53,7 @@ throw() {
 
             fi
 
-            echo -e $output_msg
+            echo -e $output_msg > /dev/tty
 
             exit $EMPTY_VARIABLE_EXCEPTION
 
@@ -62,7 +62,7 @@ throw() {
     esac
 }
 
-__get_error_msg() {
+__get_error_log_msg() {
     STD_ERROR=""
 
     while IFS="" read -r line; do
@@ -86,9 +86,9 @@ exit_on_error() {
             output_msg="${output_msg}near lines ${CODE_START} and ${CODE_END} "
         fi
 
-        echo -e "${output_msg}Aborting...${END}"
+        echo -e "${output_msg}Aborting...${END}" > /dev/tty
 
-        __get_error_msg
+        echo -e "\t${RED}LOG:${END} `__get_error_log_msg`"
 
         exit $ERROR_CODE
     fi

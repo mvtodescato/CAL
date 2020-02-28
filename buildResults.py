@@ -56,46 +56,46 @@ for topic_dir in os.listdir(results_path):
 
     topic_rel_files = [os.path.join(topic_path, f) for f in os.listdir(topic_path) if os.path.isfile(os.path.join(topic_path, f))]
 
-    with open(rel_general_file, "w") as rel_gen:
+    positives = []
+    recall = []
 
-        rel_gen_writer = csv.writer(rel_gen)
+    result_count = 0
 
-        rel_gen_writer.writerow(["positives_mean", "positives_stdev", "recall_mean", "recall_stdev"])
+    for _topic_file in topic_rel_files:
+        with open(_topic_file, "r") as topic_file:
+            topic_reader = csv.reader(topic_file)
 
-        positives = []
-        recall = []
+            curr_idx = -1
 
-        result_count = 1
-
-        for _topic_file in topic_rel_files:
-            with open(_topic_file, "r") as topic_file:
-                topic_reader = csv.reader(topic_file)
-
-                curr_idx = -1
-
-                for row in topic_reader:
-                    if curr_idx == -1:
-                        curr_idx += 1
-                        continue
-
-                    if result_count == 1:
-                        positives.append([])
-                        recall.append([])
-
-                    print(row)
-                    positives[curr_idx].append(float(row[0]))
-                    recall[curr_idx].append(float(row[2]))
-
+            for row in topic_reader:
+                if curr_idx == -1:
                     curr_idx += 1
+                    continue
 
-            result_count += 1
+                if result_count == 0:
+                    positives.append([])
+                    recall.append([])
 
+                positives[curr_idx].append(float(row[0]))
+                recall[curr_idx].append(float(row[2]))
 
-        #
-        for i in range(len(positives)):
-            rel_gen_writer.writerow([
-                "{:.5f}".format(statistics.mean(positives[i])),
-                "{:.5f}".format(statistics.stdev(positives[i])),
-                "{:.5f}".format(statistics.mean(recall[i])),
-                "{:.5f}".format(statistics.stdev(recall[i]))
-                ])
+                curr_idx += 1
+
+        result_count += 1
+
+    if result_count > 1:
+        with open(rel_general_file, "w") as rel_gen:
+
+            rel_gen_writer = csv.writer(rel_gen)
+
+            rel_gen_writer.writerow(["positives_mean", "positives_stdev", "recall_mean", "recall_stdev"])
+
+            for i in range(len(positives)):
+                rel_gen_writer.writerow([
+                    "{:.5f}".format(statistics.mean(positives[i])),
+                    "{:.5f}".format(statistics.stdev(positives[i])),
+                    "{:.5f}".format(statistics.mean(recall[i])),
+                    "{:.5f}".format(statistics.stdev(recall[i]))
+                    ])
+    else:
+        print("There was only one run, impossible calculate stdevs and means.")

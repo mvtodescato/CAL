@@ -11,7 +11,7 @@ JUDGECLASS=$1; shift
 TOPICS_CONSIDERED=("$@");
 
 CORPLIST=("${JUDGECLASS}")
-SOFIA="/home/jean/Documents/tar-toolkit-core-copy/sofia-ml-read-only/sofia-ml"
+SOFIA="/home/matheus/Documents/tar-toolkit-core-copy/sofia-ml-read-only/sofia-ml"
 
 
 contains() {
@@ -517,8 +517,11 @@ for CORP in "${CORPLIST[@]}"; do
                     alreadyLabeledDocs=`cat sub_new[0-9][0-9].$TOPIC  | wc -l`
                     allDocs=`cat new[0-9][0-9].$TOPIC  | wc -l`
 
+                    echo "rel $RELFINDDOC L $L b $b  alreadyLabeledDocs $alreadyLabeledDocs  allDocs $allDocs REL $RELRATE CURRENTRE $CURRENTREL docs relevant `wc -l < rel.$TOPIC.fil` "
+
                     aux=$((($RELFINDDOC*$L)/$b))
                     Rel=$(($Rel+$aux*1000))
+
 
                     # scale=4 diz ao bc para usar 4 casas decimais
                     RELRATE=`echo "scale=4; $RELFINDDOC / $L" | bc` # taxa de relevância da iteração

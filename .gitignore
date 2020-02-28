@@ -3,6 +3,7 @@
 *.df
 N
 result/
+all_results/
 tr0*
 athome*
 *.tfdf

@@ -6,14 +6,14 @@ source ./colors
 # Controls how many time results will be taken
 SAMPLES=3
 
-CORPLIST=("MedicalDB")
+CORPLIST=("toyDataset")
 RESULT_DIR="result/baseline"
 
 ALL_RESULTS_HELPER="all_results/runs.describe.txt"
 
 # Topics to be used in doAll_Baseline_4gram.
 # Topics omited are ignored.
-TOPICS_CONSIDERED=("tr0" "tr9" "tr13" "tr18" "tr19")
+TOPICS_CONSIDERED=("tr0" "tr2")
 
 # creates directory to store samples results
 rm -rf all_results

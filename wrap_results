@@ -4,7 +4,7 @@ source ./handle_errors
 source ./colors
 
 # Controls how many time results will be taken
-SAMPLES=1
+SAMPLES=3
 
 CORPLIST=("toyDataset")
 RESULT_DIR="result/baseline"

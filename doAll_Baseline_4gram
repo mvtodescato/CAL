@@ -499,7 +499,6 @@ for CORP in "${CORPLIST[@]}"; do
 
                     echo -e "${BLUE}Number of labeled pairs: `wc -l < sub_new$N.$TOPIC`${END}"
 
-
                     # judgefile é o arquivo que diz quais docs são os positivos
                     python2.7 ../doJudgementMain.py --topic=$TOPIC --judgefile=../judgement/qrels.$JUDGECLASS.list --input=sub_new$N.$TOPIC --output=rel.$TOPIC.Judged.doc.list --record=$TOPIC.record.list
 
@@ -517,17 +516,14 @@ for CORP in "${CORPLIST[@]}"; do
 
                     alreadyLabeledDocs=`cat sub_new[0-9][0-9].$TOPIC  | wc -l`
                     allDocs=`cat new[0-9][0-9].$TOPIC  | wc -l`
-                    echo -e "\t${WHITE}alreadyLabeledDocs: ${alreadyLabeledDocs} - allDocs: ${allDocs}.${END}"
 
                     aux=$((($RELFINDDOC*$L)/$b))
                     Rel=$(($Rel+$aux*1000))
-                    echo -e "\t${WHITE}aux: ${aux} - Rel: ${Rel}.${END}"
-
 
                     # scale=4 diz ao bc para usar 4 casas decimais
                     RELRATE=`echo "scale=4; $RELFINDDOC / $L" | bc` # taxa de relevância da iteração
                     CURRENTREL=`wc -l < rel.$TOPIC.fil` # número de relevantes até agora
-                    echo $RELFINDDOC $L $RELRATE $CURRENTREL >> rel.rate
+                    echo $RELFINDDOC $L $b $RELRATE $CURRENTREL >> rel.rate
 
                     # adiciona ' 1' ao final de cada linha de rel.$TOPIC.fil e manda o resultado para prel.$TOPIC
                     sort rel.$TOPIC.fil | sed -e 's/$/ 1/' > prel.$TOPIC
@@ -547,6 +543,9 @@ for CORP in "${CORPLIST[@]}"; do
         rm $TOPIC.seed.doc
 
     done < "judgement/$CORP.topic.stemming.txt"
+
+    echo -e "${WHITE}Apos finalizar o método o numero de docs recuperados do método  será o top total documentos acessados até a ultima executação que encontrou documentos relevantes. Por exemplo, se a execução N =20 foi a ultima a achar documentos releventas na amostragem deve-se pegar os top ~300 como relevantes. Essa será saida do método. Ou seja, o arquivo rel.rate armazena os relevantes recuperados, é só usar ele para implementar isso.${END}"
+
 
     rm -rf "$CORP".svm.fil
     rm "$CORP".df

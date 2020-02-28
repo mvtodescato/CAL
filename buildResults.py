@@ -24,12 +24,12 @@ with open(ALL_RESULT_HELPER, "r") as runs_describer:
         with open(line[2], "r") as rel_file, open(topic_file, "w") as rel_dst_file:
             rel_writer = csv.writer(rel_dst_file)
 
-            rel_writer.writerow(["positives", "all_docs", "recall"])
+            rel_writer.writerow(["positives", "all_docs", "limited_docs", "recall"])
 
             all_so_far = 0
-            total_positives = int(rel_file.readlines()[-1].split()[3])
+            limited_so_far = 0
+            total_positives = int(rel_file.readlines()[-1].split()[4])
 
-            # This must be tested. It changes the results??
             if total_positives == 0:
                 total_positives = 1
 
@@ -38,17 +38,18 @@ with open(ALL_RESULT_HELPER, "r") as runs_describer:
             for _rel_line in rel_file:
                 rel_line = _rel_line.split()
 
-                positives = int(rel_line[3])
+                positives = int(rel_line[4])
                 all_docs = int(rel_line[1]) + all_so_far
+                limited_docs = int(rel_line[2]) + limited_so_far
 
                 all_so_far = all_docs
+                limited_so_far = limited_docs
 
-                rel_writer.writerow([positives, all_docs, "{:.5f}".format(positives/total_positives)])
+                rel_writer.writerow([positives, all_docs, limited_docs, "{:.5f}".format(positives/total_positives)])
 
 # calculates mean and standard deviation over data samples taken
 
 results_path = "results/"
-
 for topic_dir in os.listdir(results_path):
 
     topic_path = os.path.join(results_path, topic_dir)
@@ -58,6 +59,8 @@ for topic_dir in os.listdir(results_path):
 
     positives = []
     recall = []
+    all_docs = []
+    limited_docs = []
 
     result_count = 0
 
@@ -75,9 +78,11 @@ for topic_dir in os.listdir(results_path):
                 if result_count == 0:
                     positives.append([])
                     recall.append([])
+                    all_docs.append(int(row[1]))
+                    limited_docs.append(int(row[2]))
 
                 positives[curr_idx].append(float(row[0]))
-                recall[curr_idx].append(float(row[2]))
+                recall[curr_idx].append(float(row[3]))
 
                 curr_idx += 1
 
@@ -88,14 +93,16 @@ for topic_dir in os.listdir(results_path):
 
             rel_gen_writer = csv.writer(rel_gen)
 
-            rel_gen_writer.writerow(["positives_mean", "positives_stdev", "recall_mean", "recall_stdev"])
+            rel_gen_writer.writerow(["all_docs", "limited_docs", "positives_mean", "positives_stdev", "recall_mean", "recall_stdev"])
 
             for i in range(len(positives)):
                 rel_gen_writer.writerow([
+                    all_docs[i],
+                    limited_docs[i],
                     "{:.5f}".format(statistics.mean(positives[i])),
                     "{:.5f}".format(statistics.stdev(positives[i])),
                     "{:.5f}".format(statistics.mean(recall[i])),
                     "{:.5f}".format(statistics.stdev(recall[i]))
-                    ])
+                ])
     else:
         print("There was only one run, impossible calculate stdevs and means.")

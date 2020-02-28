@@ -1,7 +1,9 @@
 #!/bin/bash
 
-source ./handle_errors
-source ./colors
+source "${ABS_PATH}/handle_errors"
+source "${ABS_PATH}/colors"
+
+echo "${ABS_PATH}/handle_errors"
 
 SKIP_DATA_EXTRACTION=$1; shift
 
@@ -45,7 +47,7 @@ for CORP in "${CORPLIST[@]}"; do
 
     pushd Corpus # pushd <dir> é semelhante à cd <dir>
 
-    echo -e "${WHTIE}Preparando dataset...${END}"
+    echo -e "${BLUE}Preparando dataset...${END}"
 
     if [[ $SKIP_DATA_EXTRACTION == "false" ]]; then
         ./dofast4 "$CORP"

@@ -1,17 +1,43 @@
 #!/bin/bash
 
-export ABS_PATH=`pwd`
-
 source "${ABS_PATH}/handle_errors"
 source "${ABS_PATH}/colors"
 
+echo "${ABS_PATH}/handle_errors"
+
+SKIP_DATA_EXTRACTION=$1; shift
 
 PURPOSE=baseline
-JUDGECLASS=("toyDataset");
+JUDGECLASS=$1; shift
 
+TOPICS_CONSIDERED=("$@");
 
 CORPLIST=("${JUDGECLASS}")
 SOFIA="/home/jean/Documents/tar-toolkit-core-copy/sofia-ml-read-only/sofia-ml"
+
+
+contains() {
+    : '
+        Utility function that returns true if a given
+        value is within the given array and false otherwise.
+
+        $1 -> value to check
+        $2... -> array
+    '
+
+    value=$1; shift
+    array=("$@")
+
+    for v in "${array[@]}"; do
+        if [[ $v == $value ]]; then
+            true
+            return
+        fi
+    done
+
+    false
+    return
+}
 
 : '
     Percorre cada item listado em
@@ -23,7 +49,9 @@ for CORP in "${CORPLIST[@]}"; do
 
     echo -e "${BLUE}Preparando dataset...${END}"
 
-    ./dofast4 "$CORP"
+    if [[ $SKIP_DATA_EXTRACTION == "false" ]]; then
+        ./dofast4 "$CORP"
+    fi
 
     cp "$CORP".df ../"$CORP".df
 
@@ -53,6 +81,12 @@ for CORP in "${CORPLIST[@]}"; do
         IFS=':' read -ra TEXT <<< "$line"
 
         TOPIC="${TEXT[0]}"
+
+        if ! contains $TOPIC "${TOPICS_CONSIDERED[@]}"; then
+            echo -e "${YELLOW}Skipping topic '$TOPIC'.${END}"
+            continue
+        fi
+
         QUERY="${TEXT[1]}"
 
         if [[ -z $TOPIC ]]; then
